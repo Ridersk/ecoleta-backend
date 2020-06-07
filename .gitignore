@@ -3,5 +3,5 @@ build
 uploads/*
 !uploads/.gitkeep
 
-*.env
+.env
 *.sqlite
