@@ -6,17 +6,28 @@ class PointsController {
   async index(request: Request, response: Response) {
     const { city, uf, items } = request.query;
 
-    const parsedItems = String(items)
-      .split(',')
-      .map(item => Number(item.trim()));
+    let parsedItems = items ?
+      String(items)
+        .split(',')
+        .map(item => Number(item.trim()))
+      : knex.raw('select id from items');
 
-    const points = await knex('points')
-      .join('point_items', 'points.id', '=', 'point_items.point_id')
-      .whereIn('point_items.item_id', parsedItems)
-      .where('city', String(city))
-      .where('uf', String(uf))
-      .distinct()
-      .select('points.*');
+
+    let points = [];
+
+    if (!city && !uf && !items) {
+      points = await knex('points')
+        .join('point_items', 'points.id', '=', 'point_items.point_id')
+        .distinct()
+        .select('points.*');
+    } else {
+      points = await knex('points')
+        .join('point_items', 'points.id', '=', 'point_items.point_id')
+        .where('point_items.item_id', 'in', parsedItems)
+        .where('points.city', city ? String(city) : knex.raw('points.city'))
+        .where('points.uf', uf ? String(uf) : knex.raw('points.uf'))
+        .distinct()
+        .select('points.*');
 
     const serializedPoints = points.map(point => {
       return {
@@ -59,7 +70,8 @@ class PointsController {
       longitude,
       city,
       uf,
-      items
+      items,
+      image
     } = request.body;
 
     const trx = await knex.transaction();
