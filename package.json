@@ -8,8 +8,8 @@
   },
   "scripts": {
     "start:dev": "ts-node-dev --transpileOnly --ignore-watch node_modules src/server.ts",
-    "migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "seed": "knex --knexfile knexfile.ts seed:run",
+    "migrate:dev": "knex --knexfile knexfile.ts migrate:latest",
+    "seed:dev": "knex --knexfile knexfile.ts seed:run",
     "start": "node build/src/server.js",
     "postinstall": "npm run build:prod",
     "build:prod": "rimraf ./build && tsc && npm run migrate:prod && npm run seed:prod && npm run uploads:copy && npm run env:build",
