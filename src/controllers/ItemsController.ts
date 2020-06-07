@@ -9,7 +9,7 @@ class ItemsController {
       return {
         id: item.id,
         title: item.title,
-        image_url: `${process.env.STATIC_URL}/uploads/${item.image}`
+        image: item.image
       }
     })
 

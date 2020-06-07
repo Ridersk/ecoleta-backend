@@ -18,9 +18,11 @@ routes.get('/items', itemsController.index);
 routes.get('/points/:id', pointsController.show);
 routes.get('/points', pointsController.index);
 
+const test = ['a'];
+
 routes.post(
   '/points',
-  upload.single('image'),
+  upload.fields([{ name: 'image', maxCount: 1 }]),
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required(),

@@ -1,5 +1,17 @@
 import { Request, Response } from 'express';
 import knex from '../database/connection';
+import { upload } from '../services/s3Service';
+
+interface ParamsMultiPart {
+  image: [{
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    buffer: Buffer;
+    size: number;
+  }];
+}
 
 class PointsController {
 
@@ -28,11 +40,12 @@ class PointsController {
         .where('points.uf', uf ? String(uf) : knex.raw('points.uf'))
         .distinct()
         .select('points.*');
+    }
+
 
     const serializedPoints = points.map(point => {
       return {
-        ...point,
-        image_url: `${process.env.STATIC_URL}/uploads/${point.image}`
+        ...point
       };
     });
 
@@ -49,8 +62,7 @@ class PointsController {
     }
 
     const serializedPoint = {
-      ...point,
-      image_url: `${process.env.STATIC_URL}/uploads/${point.image}`
+      ...point
     };
 
     const items = await knex('items')
@@ -61,6 +73,8 @@ class PointsController {
     return response.json({ point: serializedPoint, items });
   }
 
+
+
   async create(request: Request, response: Response) {
     const {
       name,
@@ -70,14 +84,16 @@ class PointsController {
       longitude,
       city,
       uf,
-      items,
-      image
+      items
     } = request.body;
 
+    const { files } = request;
+    const image = (files as unknown as ParamsMultiPart).image[0];
+    const imageUrl = await upload(image.buffer, image.originalname);
     const trx = await knex.transaction();
 
     const point = {
-      image: request.file.filename,
+      image: imageUrl,
       name,
       email,
       whatsapp,
