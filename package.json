@@ -12,7 +12,7 @@
     "seed:dev": "knex --knexfile knexfile.ts seed:run",
     "start": "node build/src/server.js",
     "postinstall": "npm run build:prod",
-    "build:prod": "rimraf ./build && tsc && npm run migrate:prod && npm run seed:prod && npm run uploads:copy",
+    "build:prod": "rimraf ./build && tsc && npm run migrate:prod && npm run seed:prod && npm run uploads:copy && npm run env:build",
     "migrate:prod": "knex --knexfile ./build/knexfile.js migrate:latest",
     "seed:prod": "knex --knexfile ./build/knexfile.js seed:run",
     "uploads:copy": "cp uploads/ build/ -r",

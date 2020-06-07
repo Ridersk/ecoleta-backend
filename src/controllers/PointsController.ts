@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import knex from '../database/connection';
+import { upload } from '../services/s3Service';
 
 class PointsController {
 
@@ -28,6 +29,8 @@ class PointsController {
         .where('points.uf', uf ? String(uf) : knex.raw('points.uf'))
         .distinct()
         .select('points.*');
+    }
+
 
     const serializedPoints = points.map(point => {
       return {
@@ -73,6 +76,8 @@ class PointsController {
       items,
       image
     } = request.body;
+
+    upload(image, "")
 
     const trx = await knex.transaction();
 
