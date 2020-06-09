@@ -90,6 +90,7 @@ class PointsController {
     const { files } = request;
     const image = (files as unknown as ParamsMultiPart).image[0];
     const imageUrl = await upload(image.buffer, image.originalname);
+
     const trx = await knex.transaction();
 
     const point = {

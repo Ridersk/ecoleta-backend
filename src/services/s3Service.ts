@@ -4,6 +4,7 @@ import crypto from 'crypto';
 AWS.config.update({
   region: 'us-east-1'
 })
+
 const S3 = new AWS.S3()
 const BUCKET = 'ecoleta-uploads'
 
