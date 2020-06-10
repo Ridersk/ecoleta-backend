@@ -16,32 +16,31 @@ interface ParamsMultiPart {
 class PointsController {
 
   async index(request: Request, response: Response) {
-    const { city, uf, items } = request.query;
+    const { city, uf, items, latitude, longitude } = request.query;
 
-    let parsedItems = items ?
+    let parsedItems =
       String(items)
         .split(',')
         .map(item => Number(item.trim()))
-      : knex.raw('select id from items');
 
 
     let points = [];
 
-    if (!city && !uf && !items) {
-      points = await knex('points')
-        .join('point_items', 'points.id', '=', 'point_items.point_id')
-        .distinct()
-        .select('points.*');
-    } else {
-      points = await knex('points')
-        .join('point_items', 'points.id', '=', 'point_items.point_id')
-        .where('point_items.item_id', 'in', parsedItems)
-        .where('points.city', city ? String(city) : knex.raw('points.city'))
-        .where('points.uf', uf ? String(uf) : knex.raw('points.uf'))
-        .distinct()
-        .select('points.*');
-    }
-
+    points = await knex('points')
+      .join('point_items', 'points.id', '=', 'point_items.point_id')
+      .where('point_items.item_id', 'in', parsedItems)
+      .where('points.city', city ? String(city) : knex.raw('points.city'))
+      .where('points.uf', uf ? String(uf) : knex.raw('points.uf'))
+      .whereRaw('ABS(points.latitude - :latitude) <= 0.1', {
+        latitude: latitude ?
+          Number(latitude) :
+          knex.raw('points.latitude')
+      }).whereRaw('ABS(points.longitude - :longitude) <= 0.1', {
+        longitude: longitude
+          ? Number(longitude) :
+          knex.raw('points.longitude')
+      }).distinct()
+      .select('points.*');
 
     const serializedPoints = points.map(point => {
       return {
