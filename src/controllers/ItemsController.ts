@@ -13,6 +13,7 @@ class ItemsController {
       }
     })
 
+    console.log("Request Items")
     return response.json(serializedItems);
   }
 }
